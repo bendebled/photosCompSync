@@ -1,0 +1,44 @@
+{% from "nodemacro.html" import show_node %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <title>MDGS - {{file}}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="/mdgs/static/w3.css">
+  <link rel="stylesheet" href="/mdgs/static/style.css" type="text/css">
+  <link rel="stylesheet" href="/mdgs/static/codehilite.css" type="text/css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
+  
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+  <script src="/mdgs/static/fontawesome.min.js"></script>
+
+  <body>
+    <!-- Left menu -->
+    {% include 'leftmenu.html' %}
+
+    <!-- Right menu -->
+    {% include 'rightmenu.html' %}
+
+    <!-- Content -->
+    <div style="margin-left:340px;margin-right:340px">
+      <div id="mdgsStatus">Status: </div>
+      <a href="/mdgs/FWGenDoc/{{file}}"> ← Back </a>
+      {% autoescape false %}
+      {{ html }}
+      {% endautoescape %}
+      <div id="diffView">
+      </div>
+    </div>
+
+    <script type="text/javascript" src="/mdgs/static/script.js"></script>
+
+    <!-- https://github.com/rtfpessoa/diff2html#features -->
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        loadDiff("{{file}}");
+      });
+    </script>
+  </body>
+</html>

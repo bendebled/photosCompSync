@@ -1,0 +1,13 @@
+    {% macro show_node(files) %}
+            {% if files.type == "file" %}
+              <li><a href=/mdgs/view/{{files.path}} style="font-weight: normal;" >{{files.name}}</a></li>
+            {%else%}
+              <li><span class="caret">{{files.name}}</span>
+                <ul class="nested smallerPadding noListStyle">
+                {% for key in files.children %}
+                  {{ show_node(key) }}
+                {% endfor %}
+                </ul>
+              </li>
+            {% endif %}
+    {% endmacro %}

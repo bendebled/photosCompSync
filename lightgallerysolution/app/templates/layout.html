@@ -1,0 +1,37 @@
+{% from "nodemacro.html" import show_node %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <title>MDGS - {{file}}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="/mdgs/static/w3.css">
+  <link rel="stylesheet" href="/mdgs/static/style.css" type="text/css">
+  <link rel="stylesheet" href="/mdgs/static/codehilite.css" type="text/css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+  <script src="/mdgs/static/fontawesome.min.js"></script>
+
+  <body>
+    <!-- Left menu -->
+    {% include 'leftmenu.html' %}
+
+    <!-- Right menu -->
+    {% include 'rightmenu.html' %}
+
+    <!-- Content -->
+    <div id="content" style="margin-left:340px;margin-right:340px">
+      <div id="mdgsStatus">Status: </div>
+      <a class="actionbutton" href="/mdgs/history/{{file}}"><i class="fas fa-clipboard-list"></i> History</a> <a class="actionbutton"  href="/mdgs/edit/FWGenDoc/{{file}}"><i class="far fa-edit"></i> Edit</a> <a class="actionbutton"  href="/mdgs/html/FWGenDoc/{{file}}"><i class="far fa-file-pdf"></i> HTML Export</a>  <a class="actionbutton"  href="/mdgs/pdf/FWGenDoc/{{file}}"><i class="far fa-file-pdf"></i> PDF Export</a> <a href="#" class="actionbutton"  onclick="fetch('/mdgs/pullRepo')"><i class="fas fa-arrow-down"></i> PullRepo</a> 
+      <div id="mdcontent">
+      {% autoescape false %}
+      {{ html }}
+      {% endautoescape %}
+      </div>
+    </div>
+
+    <script src="/mdgs/static/script.js"></script>
+
+  </body>
+</html>

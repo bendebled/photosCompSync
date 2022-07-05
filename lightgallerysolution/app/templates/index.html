@@ -1,0 +1,50 @@
+<html>
+<head>
+  <meta charset=UTF-8>
+    <title>Bonjour tout le monde !</title>
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/video/lg-video.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/fullscreen/lg-fullscreen.umd.js"></script>
+<script
+        src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css">
+</head>
+<body>
+<a href="/sync">/sync</a><br/>
+<a href="/sync_status">/sync_status</a><br/><br/>
+<a href="../">../</a><br/>
+{% autoescape false %}
+{{ html_folder }}
+{% endautoescape %}
+<div class="gallery-container d-flex align-items-center justify-content-center" id="lightgallery">
+  {% autoescape false %}
+  {{ html }}
+  {% endautoescape %}
+</div>
+<script type="text/javascript">
+
+    const lg = lightGallery(document.getElementById('lightgallery'), {
+        plugins: [lgVideo, lgFullscreen],
+        speed: 5,
+    });
+
+//for (let i = 1; i < 1000; i++) { 
+
+
+    //document.getElementById('lightgallery').insertAdjacentHTML(
+     //   "beforeend",
+     //   `<a data-lg-size="1400-1402" class="gallery-item" data-src="https://picsum.photos/seed/picsum`+i+`/1920/1080" data-sub-html="`+i+`">
+    //<img class="img-fluid" src="https://picsum.photos/seed/picsum`+i+`/240" />
+  //</a>`
+ //     );
+
+//} 
+
+
+  //  lg.refresh();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<nav class="w3-sidebar w3-red w3-collapse w3-top w3-large w3-padding" style="z-index:3;width:320px;font-weight:bold;background-color: #07365c !important;" id="mySidebar"><br>
+    <a href="javascript:void(0)" onclick="w3_close()" class="w3-button w3-hide-large w3-display-topleft" style="width:100%;font-size:22px">Close Menu</a>
+    <div class="w3-container" style="margin-bottom: 20px;">
+        <a href="/mdgs/FWGenDoc"><img src="/mdgs/static/ewon.png" width="260px;" /></a>
+    </div>
+    <div>
+        <form action="/mdgs/FWGenDoc/" method="get">
+        <input type="search" id="search" name="search" placeholder="Search..." style="width: 100%" onclick="location.href='/mdgs/FWGenDoc/search';">
+        </form>
+    </div>
+    <div id="toggle" style="cursor:pointer;margin: 20px;">Toggle</div>
+    <div class="w3-bar-block smallerPadding" >
+        <ul id="myUL" class="smallerPadding noListStyle">
+        {{ show_node(files) }} 
+        </ul>
+    </div>
+</nav>

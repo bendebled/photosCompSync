@@ -1,0 +1,9 @@
+gitpython
+markdown
+MarkupSafe
+jinja2
+aiofiles
+python-multipart
+weasyprint
+Pygments
+beautifulsoup4
