@@ -68,7 +68,11 @@ def gen_media(request: Request):
         if '.jpg' in file:
             ny = Image(filename =file)
             with ny.clone() as r:
-                r.transform(1080,1080)
+                pct = (720/max(r.size))
+                new_width = int(r.size[0]*pct)
+                new_height = int(r.size[1]*pct)
+                r.resize(new_width, new_height)
+                r.compression_quality = 30
                 r.save(filename=file.replace("orig", "media"))
         elif '.mp4' in file:
             pass
