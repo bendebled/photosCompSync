@@ -86,7 +86,9 @@ def gen_thumbs(request: Request):
         if '.jpg' in file:
             ny = Image(filename =file)
             with ny.clone() as r:
-                r.resize(240,240)
+                s = min(r.size)
+                r.crop(width=s, height=s, gravity='center')
+                r.sample(240,240)
                 r.save(filename=file.replace("media", "thumbs"))
         elif '.mp4' in file:
             print(file)
