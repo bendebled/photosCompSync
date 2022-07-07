@@ -168,11 +168,9 @@ def show_subpath(file_path: str, request: Request):
             print(d)
             html_folder += "<a href=%s>%s</a></br>" % ("%s/%s" % (file_path,file), file)
         if ".jpg" in d:
-            print("a")
             exif = {}
             with Image(filename=d) as image:
                 exif.update((k[5:], v) for k, v in image.metadata.items() if k.startswith('exif:'))
-            print("b")
             html += """
             <a data-lg-size="1400-1400" class="gallery-item" data-src="./data/media/%s" data-sub-html="<div id='toto'>%s</div>">
             <img class="img-fluid" src="./data/thumbs/%s" />
