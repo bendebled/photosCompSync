@@ -8,12 +8,15 @@ import subprocess    # for video thumbnails
 from wand.image import Image   # sudo apt-get install libmagickwand-dev        pip3 install Wand
 import time
 
+resizing_media_file_counter = 0
+resizing_media_file_len = 0
 resizing_file_counter = 0
 resizing_file_len = 0
 ORIG_PATH='./static/data/orig/'
 MEDIA_PATH='./static/data/media/'
 THUMBS_PATH='./static/data/thumbs/'
-
+THUMBS_QUALITY=30
+MEDIA_SIZE=720
 
 ###########################################################
 ## Helper functions #######################################
@@ -68,11 +71,10 @@ def gen_media(request: Request):
         if '.jpg' in file:
             ny = Image(filename =file)
             with ny.clone() as r:
-                pct = (720/max(r.size))
+                pct = (MEDIA_SIZE/max(r.size))
                 new_width = int(r.size[0]*pct)
                 new_height = int(r.size[1]*pct)
                 r.resize(new_width, new_height)
-                r.compression_quality = 30
                 r.save(filename=file.replace("orig", "media"))
         elif '.mp4' in file:
             pass
@@ -93,9 +95,9 @@ def gen_thumbs(request: Request):
                 s = min(r.size)
                 r.crop(width=s, height=s, gravity='center')
                 r.sample(240,240)
+                r.compression_quality = THUMBS_QUALITY
                 r.save(filename=file.replace("media", "thumbs"))
         elif '.mp4' in file:
-            print(file)
             video_input_path = file
             img_output_path = file.replace("media", "thumbs")
             subprocess.call(['ffmpeg', '-i', video_input_path, '-ss', '00:00:00.000', '-vframes', '1', '-f', 'image2', img_output_path])
@@ -103,6 +105,7 @@ def gen_thumbs(request: Request):
             ny = Image(filename =img_output_path.replace(".mp4", ".jpg"))
             with ny.clone() as r:
                 r.resize(240,240)
+                r.compression_quality = THUMBS_QUALITY
                 r.save(filename=img_output_path.replace(".mp4", ".jpg"))
                 os.rename(img_output_path.replace(".mp4", ".jpg"), img_output_path)
 
