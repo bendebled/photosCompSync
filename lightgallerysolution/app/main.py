@@ -68,14 +68,14 @@ def createDirIfNotExist(filenameordirectoryname):
     if not os.path.exists(newfoldername): os.makedirs(newfoldername)
 
 @app.get('/gen_media')
-def gen_media(request: Request):
+def gen_media(request: Request, photo: bool = False, video: bool = False):
     global resizing_media_file_counter
     global resizing_media_file_len
     files_to_resize = gen_files_to_resize(ORIG_PATH, ORIG_NAME, MEDIA_PATH, MEDIA_NAME)
     resizing_media_file_len = len(files_to_resize)
     for file in files_to_resize:
         resizing_media_file_counter += 1
-        if '.jpg' in file:
+        if '.jpg' in file and photo:
             newfilename=file.replace(ORIG_NAME, MEDIA_NAME)
             createDirIfNotExist(newfilename)
             ny = Image(filename =file)
@@ -85,7 +85,7 @@ def gen_media(request: Request):
                 new_height = int(r.size[1]*pct)
                 r.resize(new_width, new_height)
                 r.save(filename=newfilename)
-        elif '.mp4' in file:
+        elif '.mp4' in file and video:
             pass
     resizing_media_file_counter = 0
     resizing_media_file_len = 0
@@ -146,15 +146,16 @@ def gen_files_to_resize(rootdir_a, name_a, rootdir_b, name_b):
     return files_to_resize
 
 @app.get('/sync_status')
-def synced(request: Request):
-    thumbs_to_generate = gen_files_to_resize(MEDIA_PATH, MEDIA_NAME, THUMBS_PATH, THUMBS_NAME)
-    media_to_generate = gen_files_to_resize(ORIG_PATH, ORIG_NAME, MEDIA_PATH, MEDIA_NAME)
-    return {"thumbs_yet_to_resize": len(thumbs_to_generate), 
-            "currently resizing thumbs": "%d/%d" % (resizing_file_counter, resizing_file_len),
-            "media_yet_to_resize": len(media_to_generate), 
-            "currently resizing media": "%d/%d" % (resizing_file_counter, resizing_file_len)}
-
-            
+def synced(request: Request,  full_log: bool = False):
+    res = {}
+    if full_log:
+        thumbs_to_generate = gen_files_to_resize(MEDIA_PATH, MEDIA_NAME, THUMBS_PATH, THUMBS_NAME)
+        media_to_generate = gen_files_to_resize(ORIG_PATH, ORIG_NAME, MEDIA_PATH, MEDIA_NAME)
+        res["thumbs_yet_to_resize"] = len(thumbs_to_generate)
+        res["media_yet_to_resize"] = len(media_to_generate)
+    res["currently resizing thumbs"] = "%d/%d" % (resizing_file_counter, resizing_file_len)
+    res["currently resizing media"] = "%d/%d" % (resizing_media_file_counter, resizing_media_file_len)
+    return res
 
 @app.get('/{file_path:path}', response_class=HTMLResponse)
 def show_subpath(file_path: str, request: Request):
