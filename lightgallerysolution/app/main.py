@@ -63,6 +63,10 @@ def show_subpathpng(file_path: str, request: Request):
     f = open("./static/"+file_path+".MP4", "rb")
     return StreamingResponse(f, media_type="image/jpeg")
 
+def createDirIfNotExist(filenameordirectoryname):
+    newfoldername=os.path.dirname(filenameordirectoryname)
+    if not os.path.exists(newfoldername): os.makedirs(newfoldername)
+
 @app.get('/gen_media')
 def gen_media(request: Request):
     global resizing_media_file_counter
@@ -72,13 +76,15 @@ def gen_media(request: Request):
     for file in files_to_resize:
         resizing_media_file_counter += 1
         if '.jpg' in file:
+            newfilename=file.replace(ORIG_NAME, MEDIA_NAME)
+            createDirIfNotExist(newfilename)
             ny = Image(filename =file)
             with ny.clone() as r:
                 pct = (MEDIA_SIZE/max(r.size))
                 new_width = int(r.size[0]*pct)
                 new_height = int(r.size[1]*pct)
                 r.resize(new_width, new_height)
-                r.save(filename=file.replace("orig", "media"))
+                r.save(filename=newfilename)
         elif '.mp4' in file:
             pass
     resizing_media_file_counter = 0
@@ -92,6 +98,8 @@ def gen_thumbs(request: Request):
     resizing_file_len = len(files_to_resize)
     for file in files_to_resize:
         resizing_file_counter += 1
+        newfilename=file.replace(MEDIA_NAME, THUMBS_NAME)
+        createDirIfNotExist(newfilename)
         if '.jpg' in file:
             ny = Image(filename =file)
             with ny.clone() as r:
@@ -99,18 +107,17 @@ def gen_thumbs(request: Request):
                 r.crop(width=s, height=s, gravity='center')
                 r.sample(240,240)
                 r.compression_quality = THUMBS_QUALITY
-                r.save(filename=file.replace("media", "thumbs"))
+                r.save(filename=newfilename)
         elif '.mp4' in file:
             video_input_path = file
-            img_output_path = file.replace("media", "thumbs")
-            subprocess.call(['ffmpeg', '-i', video_input_path, '-ss', '00:00:00.000', '-vframes', '1', '-f', 'image2', img_output_path])
-            os.rename(img_output_path, img_output_path.replace(".mp4", ".jpg"))
-            ny = Image(filename =img_output_path.replace(".mp4", ".jpg"))
+            subprocess.call(['ffmpeg', '-i', video_input_path, '-ss', '00:00:00.000', '-vframes', '1', '-f', 'image2', newfilename])
+            os.rename(newfilename, newfilename.replace(".mp4", ".jpg"))
+            ny = Image(filename =newfilename.replace(".mp4", ".jpg"))
             with ny.clone() as r:
                 r.resize(240,240)
                 r.compression_quality = THUMBS_QUALITY
-                r.save(filename=img_output_path.replace(".mp4", ".jpg"))
-                os.rename(img_output_path.replace(".mp4", ".jpg"), img_output_path)
+                r.save(filename=newfilename.replace(".mp4", ".jpg"))
+                os.rename(newfilename.replace(".mp4", ".jpg"), newfilename)
 
     resizing_file_counter = 0
     resizing_file_len = 0
