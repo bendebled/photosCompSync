@@ -12,9 +12,12 @@ resizing_media_file_counter = 0
 resizing_media_file_len = 0
 resizing_file_counter = 0
 resizing_file_len = 0
-ORIG_PATH='./static/data/orig/'
-MEDIA_PATH='./static/data/media/'
-THUMBS_PATH='./static/data/thumbs/'
+ORIG_NAME="orig"
+MEDIA_NAME="media"
+THUMBS_NAME="thumbs"
+ORIG_PATH='./static/data/%s/' % ORIG_NAME
+MEDIA_PATH='./static/data/%s/' % MEDIA_NAME
+THUMBS_PATH='./static/data/%s/' % THUMBS_NAME
 THUMBS_QUALITY=30
 MEDIA_SIZE=720
 
@@ -64,7 +67,7 @@ def show_subpathpng(file_path: str, request: Request):
 def gen_media(request: Request):
     global resizing_media_file_counter
     global resizing_media_file_len
-    files_to_resize = gen_files_to_resize(ORIG_PATH, MEDIA_PATH)
+    files_to_resize = gen_files_to_resize(ORIG_PATH, ORIG_NAME, MEDIA_PATH, MEDIA_NAME)
     resizing_media_file_len = len(files_to_resize)
     for file in files_to_resize:
         resizing_media_file_counter += 1
@@ -85,7 +88,7 @@ def gen_media(request: Request):
 def gen_thumbs(request: Request):
     global resizing_file_counter
     global resizing_file_len
-    files_to_resize = gen_files_to_resize(MEDIA_PATH, THUMBS_PATH)
+    files_to_resize = gen_files_to_resize(MEDIA_PATH, MEDIA_NAME, THUMBS_PATH, THUMBS_NAME)
     resizing_file_len = len(files_to_resize)
     for file in files_to_resize:
         resizing_file_counter += 1
@@ -112,7 +115,7 @@ def gen_thumbs(request: Request):
     resizing_file_counter = 0
     resizing_file_len = 0
 
-def gen_files_to_resize(rootdir_a, rootdir_b):
+def gen_files_to_resize(rootdir_a, name_a, rootdir_b, name_b):
     files_to_resize = []
 
     files_a = []
@@ -130,17 +133,17 @@ def gen_files_to_resize(rootdir_a, rootdir_b):
                 files_b.append(os.path.join(r, file))
 
     for file in files_a:
-        if file.replace("media", "thumbs") not in files_b:
+        if file.replace(name_a, name_b) not in files_b:
             files_to_resize.append(file)
 
     return files_to_resize
 
 @app.get('/sync_status')
 def synced(request: Request):
-    thumbs_to_generate = gen_files_to_resize(MEDIA_PATH, THUMBS_PATH)
-    media_to_generate = gen_files_to_resize(ORIG_PATH, MEDIA_PATH)
+    thumbs_to_generate = gen_files_to_resize(MEDIA_PATH, MEDIA_NAME, THUMBS_PATH, THUMBS_NAME)
+    media_to_generate = gen_files_to_resize(ORIG_PATH, ORIG_NAME, MEDIA_PATH, MEDIA_NAME)
     return {"thumbs_yet_to_resize": len(thumbs_to_generate), 
-            "currently resizing thumbs": "%d/%d" % (resizing_file_counter, resizing_file_len)
+            "currently resizing thumbs": "%d/%d" % (resizing_file_counter, resizing_file_len),
             "media_yet_to_resize": len(media_to_generate), 
             "currently resizing media": "%d/%d" % (resizing_file_counter, resizing_file_len)}
 
