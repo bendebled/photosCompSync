@@ -1,7 +1,9 @@
-from fastapi import FastAPI, HTTPException, File, UploadFile, Request, Form, status
+from fastapi import FastAPI, HTTPException, File, UploadFile, Request, Response, Form, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi import Header
 from fastapi.responses import HTMLResponse, FileResponse, PlainTextResponse, StreamingResponse, RedirectResponse
+from pathlib import Path
 import os
 import glob
 import subprocess    # for video thumbnails
@@ -53,6 +55,7 @@ def show_subpathpng(file_path: str, request: Request):
     f = open("./static/"+file_path+".JPG", "rb")
     return StreamingResponse(f, media_type="image/jpeg")
 
+# https://stribny.name/blog/fastapi-video/
 @app.get('/{file_path:path}.mp4')
 def show_subpathpng(file_path: str, request: Request):
     f = open("./static/"+file_path+".mp4", "rb")
@@ -61,6 +64,27 @@ def show_subpathpng(file_path: str, request: Request):
 @app.get('/{file_path:path}.MP4')
 def show_subpathpng(file_path: str, request: Request):
     f = open("./static/"+file_path+".MP4", "rb")
+    return StreamingResponse(f, media_type="image/jpeg")
+
+CHUNK_SIZE = 1024*1024
+@app.get('/video')
+async def video_endpoint(range: str = Header(None)):
+    video_path = Path("./static/data/media/Stream1_AV1_720p_1.5mbps.webm")
+    start, end = range.replace("bytes=", "").split("-")
+    start = int(start)
+    end = int(end) if end else start + CHUNK_SIZE
+    with open(video_path, "rb") as video:
+        video.seek(start)
+        data = video.read(end - start)
+        filesize = str(video_path.stat().st_size)
+        headers = {
+            'Content-Range': f'bytes {str(start)}-{str(end)}/{filesize}',
+            'Accept-Ranges': 'bytes'
+        }
+        return Response(data, status_code=206, headers=headers, media_type="video/mp4")
+
+def show_subpathpng(file_path: str, request: Request):
+    f = open("./static/"+file_path+".mp4", "rb")
     return StreamingResponse(f, media_type="image/jpeg")
 
 def createDirIfNotExist(filenameordirectoryname):
@@ -75,9 +99,9 @@ def gen_media(request: Request, photo: bool = False, video: bool = False):
     resizing_media_file_len = len(files_to_resize)
     for file in files_to_resize:
         resizing_media_file_counter += 1
+        newfilename=file.replace(ORIG_NAME, MEDIA_NAME)
+        createDirIfNotExist(newfilename)
         if '.jpg' in file and photo:
-            newfilename=file.replace(ORIG_NAME, MEDIA_NAME)
-            createDirIfNotExist(newfilename)
             ny = Image(filename =file)
             with ny.clone() as r:
                 pct = (MEDIA_SIZE/max(r.size))
@@ -86,7 +110,10 @@ def gen_media(request: Request, photo: bool = False, video: bool = False):
                 r.resize(new_width, new_height)
                 r.save(filename=newfilename)
         elif '.mp4' in file and video:
-            pass
+            # https://en.wikipedia.org/wiki/HTML5_video
+            # https://trac.ffmpeg.org/wiki/Encode/AV1
+            subprocess.run(["ffmpeg", "-i", file, "-c:v", "libaom-av1" ,"-crf", "32", "-b:v", "0", newfilename])
+
     resizing_media_file_counter = 0
     resizing_media_file_len = 0
 
@@ -176,15 +203,15 @@ def show_subpath(file_path: str, request: Request):
             <img class="img-fluid" src="./data/thumbs/%s" />
             </a>
             """ % ("%s/%s" % (file_path,file), "%s, %s" % (file, str(exif)), "%s/%s" % (file_path,file))
-        if ".mp4" in d:
+        if ".webm" in d:
             html += """
             <a data-lg-size=1280-720 
                data-pinterest-text="Pin it3" 
                data-tweet-text="lightGallery slide  4" 
-               data-video='{"source": [{"src":"./data/media/%s", "type":"video/mp4"}], "attributes": {"preload": false, "controls": true}}' 
+               data-video='{"source": [{"src":"%s", "type":"video/mp4"}], "attributes": {"preload": false, "controls": true}}' 
                data-poster=./data/thumbs/%s
                data-sub-html="<h4>ROLLIN' SAFARI - 'Meerkats' - what if animals were round?</h4>">
                   <img class=img-fluid src=./data/thumbs/%s>
-            </a>""" % ("%s/%s" % (file_path,file), "%s/%s" % (file_path,file), "%s/%s" % (file_path,file))
+            </a>""" % ("video", "%s/%s" % (file_path,file), "%s/%s" % (file_path,file))
 
     return templates.TemplateResponse("index.html", {"request": request, "html": html, "html_folder":html_folder})

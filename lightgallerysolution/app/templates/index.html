@@ -18,6 +18,11 @@
 {% autoescape false %}
 {{ html_folder }}
 {% endautoescape %}
+
+        <video width="1200" controls muted="muted">
+            <source src="http://localhost:8000/video" type="video/mp4" />
+        </video>
+
 <div class="gallery-container d-flex align-items-center justify-content-center" id="lightgallery">
   {% autoescape false %}
   {{ html }}
