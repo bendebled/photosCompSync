@@ -1,13 +1,11 @@
 version: "3"
 services:
-  signing-server:
+  photo-server:
     build: .
-    image: docker.dev.ewon.biz/doc/mdgs:latest
     restart: always
     volumes:
       - /root/.git:/git
     environment:
       - MAX_WORKERS=1
-      - USER=svc-niv-git-mdgs
     ports:
-      - "81:80"
+      - "80:80"

@@ -9,6 +9,6 @@ COPY ./app /app
 
 # RUN mkdir /root/.ssh
 # RUN chown root:root /root/.ssh
-COPY ./ssh /root/.ssh
+#COPY ./ssh /root/.ssh
 
 WORKDIR /app

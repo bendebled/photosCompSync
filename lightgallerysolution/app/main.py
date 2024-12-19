@@ -55,6 +55,8 @@ def show_subpathpng(file_path: str, request: Request):
     f = open("./static/"+file_path+".JPG", "rb")
     return StreamingResponse(f, media_type="image/jpeg")
 
+# https://evilmartians.com/chronicles/better-web-video-with-av1-codec
+
 # https://stribny.name/blog/fastapi-video/
 @app.get('/{file_path:path}.mp4')
 def show_subpathpng(file_path: str, request: Request):
